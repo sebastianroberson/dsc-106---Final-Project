@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Court Vision: An NBA Passing Case Study</title>
+  <meta name="description" content="An explorable explanation of what great passing looks like in the NBA, built with D3 and NBA player-tracking data from nba_api." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">DSC 106 · Final Project · Initial Prototype</p>
+    <h1>What does great court vision look like?</h1>
+    <p class="subtitle">An NBA passing case study</p>
+    <p class="byline">Team: <span class="todo">Sebastian Roberson, Kylan Huyhn, Kevin Pyo</span></p>
+  </header>
+
+  <main>
+    <!-- HOOK -------------------------------------------------------------->
+    <section class="prose hook">
+      <p class="lede">
+        A pass only counts as an assist if a teammate makes the shot.
+        Throw a perfect pass to an open shooter who bricks it, and the box score records nothing.
+      </p>
+      <p>
+        So when we call someone a "great passer," are we measuring <em>their</em> vision, or
+        <em>their teammates'</em> shooting? NBA player-tracking cameras log every pass, every shot
+        it leads to, and who it went to. That data lets us look past the assist column.
+      </p>
+    </section>
+
+    <!-- VIZ 1 ------------------------------------------------------------->
+    <section class="viz-section" id="beyond">
+      <div class="prose">
+        <h2><span class="num">1</span> Beyond the assist</h2>
+        <p>
+          A <strong>potential assist</strong> is any pass that leads directly to a shot, made or missed.
+          Each dot below is one player. If teammates made every shot a player set up, the dot would
+          sit on the 100% line. Dots far to the right but low create plenty of good looks for
+          teammates who don't finish them.
+        </p>
+        <p class="hint">Hover a dot for details, click it to follow that player through the page, or switch the axes to compare other passing stats.</p>
+      </div>
+
+      <div class="controls" role="group" aria-label="Scatter plot controls">
+        <label>X axis <select id="x-metric"></select></label>
+        <label>Y axis <select id="y-metric"></select></label>
+        <label>Min. minutes/game <input id="min-mpg" type="range" min="0" max="34" step="1" value="20" /><output id="min-mpg-out">20</output></label>
+        <label class="search">Find a player <input id="player-search" list="player-list" placeholder="e.g. a point guard" autocomplete="off" /></label>
+        <datalist id="player-list"></datalist>
+      </div>
+
+      <div class="viz-row">
+        <figure class="chart" id="scatter" aria-label="Scatter plot of player passing statistics"></figure>
+        <aside class="card" id="player-card" aria-live="polite"></aside>
+      </div>
+    </section>
+
+    <!-- VIZ 2 ------------------------------------------------------------->
+    <section class="viz-section" id="network">
+      <div class="prose">
+        <h2><span class="num">2</span> Where the ball goes</h2>
+        <p>
+          Vision also means <em>who</em> you find. This network shows every pass between a team's
+          rotation players over the whole season. Each circle is a player, sized by passes made
+          per game, and each arrow is passes per game from one player to another. A creator
+          becomes a hub that the offense runs through.
+        </p>
+        <p class="hint">Hover a player to isolate their passes: <span class="key out">orange = passes out</span>, <span class="key in">blue = passes in</span>. Hover an arrow to see how often that pass led to an assist.</p>
+      </div>
+
+      <div class="controls" role="group" aria-label="Network controls">
+        <label>Team <select id="team-select"></select></label>
+        <label>Hide links under <input id="link-min" type="range" min="0" max="10" step="0.5" value="2" /><output id="link-min-out">2.0</output>&nbsp;passes/game</label>
+      </div>
+
+      <div class="viz-row">
+        <figure class="chart" id="network-chart" aria-label="Team passing network"></figure>
+        <aside class="card" id="network-notes" aria-live="polite"></aside>
+      </div>
+    </section>
+
+    <!-- COMING NEXT ------------------------------------------------------->
+    <section class="prose roadmap">
+      <h2><span class="num">3</span> Coming next</h2>
+      <p>
+        Next we'll separate passing <em>volume</em> from passing <em>quality</em>, adjusting for
+        role and teammates' shooting, to see which players create the most good looks per
+        touch. The page will end with a "build your own playmaker" view where readers weight
+        the metrics themselves and see how the rankings change.
+      </p>
+    </section>
+
+    <!-- PROTOTYPE WRITE-UP ------------------------------------------------>
+    <section class="prose writeup" id="writeup">
+      <h2>Prototype write-up</h2>
+
+      <h3>What have we done so far?</h3>
+      <p>
+        We built a reproducible data pipeline in Python that uses the <code>nba_api</code> package to
+        pull NBA player-tracking data for the 2025–26 regular season. It combines the league
+        passing dashboard (passes made, potential assists, secondary assists and assist points
+        created) with box-score and advanced stats, plus each rotation player's pass-by-pass
+        breakdown to every teammate. With that data we built the first interactive view, a
+        scatter plot of potential assists vs. assists. It has guide lines showing teammate
+        conversion rates, switchable axes, a minutes filter, player search and a linked player
+        card. We also built a second, linked view, a team passing network. It shows who passes
+        to whom, follows the player selected in the scatter, and isolates a player's passes on
+        hover. Finally, we drafted the story structure: <em>assists</em> are the standard measure
+        of passing, <em>but</em> they depend on teammates making shots, <em>therefore</em> we use
+        tracking data to measure the chances a passer creates.
+      </p>
+
+      <h3>What will be the most challenging part to design, and why?</h3>
+      <p>
+        The hardest part will be turning "court vision," a fuzzy idea about decision-making, into
+        something we can show honestly. Tracking data records what happened after a pass, not
+        the options a player saw or passed up. Even potential assists still depend on whether the
+        teammate chose to shoot, so we have to be careful not to overstate what any one metric
+        means. A second challenge is that the pass networks get cluttered fast. A 10-player
+        rotation has up to 90 directed connections, so we'll need filtering, highlighting and
+        annotation to keep the main pattern readable without hiding the data. Finally, linking
+        the views into one guided story (scrollytelling that moves from the league-wide scatter
+        to a single team's network to a single player) without losing the reader's freedom to
+        explore is both a design and an engineering challenge.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Data: NBA.com player tracking (Second Spectrum) via
+      <a href="https://github.com/swar/nba_api">nba_api</a>.
+      <span id="data-meta"></span>
+      Built with <a href="https://d3js.org">D3.js</a>.
+    </p>
+  </footer>
+
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
