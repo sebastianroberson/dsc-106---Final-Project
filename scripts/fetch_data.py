@@ -69,7 +69,9 @@ def call(endpoint_cls, cache_key, retries=4, **params):
 
     for attempt in range(1, retries + 1):
         try:
-            ep = endpoint_cls(**params, headers=HEADERS, timeout=90)
+            # Use nba_api's built-in headers. The custom HEADERS above make
+            # stats.nba.com hang until timeout (tested 2026-11-17).
+            ep = endpoint_cls(**params, timeout=90)
             raw = ep.get_dict()
             path.write_text(json.dumps(raw))
             time.sleep(SLEEP)
