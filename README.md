@@ -41,3 +41,12 @@ python3 -m http.server 8000   # then open http://localhost:8000
   secondary assists, assist points created
 - `LeagueDashPlayerStats` (Base + Advanced): turnovers, assist %, usage %
 - `PlayerDashPtPass`: each player's passes and assists to every teammate
+
+## Acknowledgements
+
+[Claude Code](https://claude.com/claude-code) (Anthropic) helped debug and fix the data
+fetching in `scripts/fetch_data.py`. The original script passed a custom set of browser
+headers to every `nba_api` endpoint, which made stats.nba.com hang until the request
+timed out. Claude traced the hang to those headers and switched the calls to
+`nba_api`'s built-in headers, after which the script fetched the 2025-26 data in
+`data/players.json` and `data/networks.json`.
