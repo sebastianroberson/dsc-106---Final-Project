@@ -232,6 +232,10 @@ function initNetworkControls() {
   d3.select("#team-select").selectAll("option").data(teams).join("option")
     .attr("value", d => d).text(d => d);
   d3.select("#team-select").on("change", function () { state.team = this.value; drawNetwork(); });
+  d3.select("#team-player").on("change", function () {
+    const playerId = Number(this.value);
+    if (byId.has(playerId)) selectPlayer(playerId, { keepTeam: true });
+  });
   d3.select("#link-min").on("input", function () {
     state.linkMin = +this.value;
     d3.select("#link-min-out").text(d3.format(".1f")(state.linkMin));
@@ -239,10 +243,24 @@ function initNetworkControls() {
   });
 }
 
+function updateNetworkRoster(nodes) {
+  const roster = nodes.filter(n => byId.has(n.id)).sort((a, b) => d3.ascending(a.name, b.name));
+  const select = d3.select("#team-player").property("disabled", roster.length === 0);
+  select.selectAll("option")
+    .data([null, ...roster], n => n?.id ?? "")
+    .join("option")
+    .attr("value", n => n?.id ?? "")
+    .property("disabled", n => n === null)
+    .text(n => n?.name ?? "Choose a player");
+  const selected = roster.find(n => n.id === state.selected);
+  select.property("value", selected?.id ?? "");
+}
+
 function drawNetwork() {
   const fig = d3.select("#network-chart");
   fig.selectAll("*").remove();
   const net = networks[state.team];
+  updateNetworkRoster(net?.nodes ?? []);
   if (!net) { fig.html(`<div class="empty">No network data for this team.</div>`); return; }
   d3.select("#team-select").property("value", state.team);
 
